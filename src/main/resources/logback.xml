@@ -8,7 +8,7 @@
         <appender-ref ref="STDOUT" />
     </root>
     <!-- Switch to On for slick debug log -->
-    <logger name="scala.slick" level="Off" />
-    <logger name="scala.slick.session" level="Off" />
+    <logger name="scala.slick" level="INFO"/>
+    <logger name="scala.slick.session" level="INFO"/>
     <logger name="application" level="DEBUG"/>
 </configuration>

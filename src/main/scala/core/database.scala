@@ -1,8 +1,11 @@
 package core
 
 import domain.{ DBLocationsFetches, DBLocations }
-import scala.slick.driver.H2Driver.simple._
-import scala.slick.jdbc.meta.MTable
+import slick.driver.H2Driver.api._
+import slick.jdbc.meta.MTable
+
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 /**
  * Database configuration
@@ -10,7 +13,7 @@ import scala.slick.jdbc.meta.MTable
 object DatabaseCfg {
 
   // For H2 in memory database we need to use DB_CLOSE_DELAY
-  val db = Database.forURL("jdbc:h2:mem:todo-list;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1");
+  val db = Database.forURL("jdbc:h2:mem:locations;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1");
 
   // create TableQueries for all tables
   val fetchTable: TableQuery[DBLocationsFetches] = TableQuery[DBLocationsFetches]
@@ -18,13 +21,10 @@ object DatabaseCfg {
 
   // Initialize database if tables does not exists
   def init() = {
-    db.withTransaction { implicit session =>
-      if (MTable.getTables("Location").list.isEmpty) {
-        fetchTable.ddl.create
-      }
-      if (MTable.getTables("LocationsFetch").list.isEmpty) {
-        locationsTable.ddl.create
-      }
-    }
+    //if(MTable.getTables("Location"))
+    val setup = DBIO.seq(
+      (fetchTable.schema ++ locationsTable.schema).create
+    )
+    Await.result(db.run(setup), Duration.Inf)
   }
 }
